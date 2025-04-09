@@ -1,26 +1,32 @@
+/* Hide scrollbars while allowing scrolling if absolutely needed */
+*::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   margin: 0;
   padding: 20px;
-  overflow: hidden;
+  overflow: visible;
   background-color: rgba(30, 30, 30, 0.95);
   color: #f0f0f0;
   border-radius: 10px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
   max-width: 100%;
-  min-height: 60px; /* Keep min-height */
-  /* Start collapsed */
-  max-height: 60px;
+  min-height: 60px;
+  height: auto;
   user-select: none;
-  /* Transition max-height for smooth expand/collapse of the body itself */
-  transition: max-height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  /* overflow: hidden; is already set */
+  transition: height 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .container {
   display: flex;
   flex-direction: column;
-  /* Remove fixed height, let content determine height */
 }
 
 .search-container {
@@ -41,7 +47,8 @@ body {
 
 #search-input:focus {
   border-color: #0078d7;
-  box-shadow: 0 0 0 2px rgba(0, 120, 215, 0.3);
+  box-shadow: none;
+  outline: none;
 }
 
 .results-container {
@@ -56,51 +63,39 @@ body {
   padding: 10px;
   border-radius: 5px;
   animation: fadeIn 0.3s ease;
+  position: relative;
 }
 
 .result-label {
   font-weight: bold;
-  margin-right: 10px;
   width: 80px;
-  color: #fff;
+  color: #0078d7;
+  margin-right: 10px;
 }
 
-/* Elements to be animated */
-#command-result, #loading, #error-text {
-  transition: opacity 0.2s ease-out, max-height 0.3s ease-out, margin 0.3s ease-out, padding 0.3s ease-out, border 0.3s ease-out;
-  overflow: hidden;
-  max-height: 200px; /* Adjust as needed: max height for content area */
-  opacity: 1;
+.result-text {
+  flex: 1;
+  font-family: 'Consolas', 'Courier New', monospace;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 2px 0;
 }
-
-.hidden {
-  opacity: 0;
-  max-height: 0 !important; /* Force max-height to 0 when hidden */
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  border-width: 0 !important;
-  /* display: none; removed to allow transition */
-}
-
-/* Remove previous rules targeting hidden state */
-/* #command-result.hidden { */
-  /* No special animation needed when hidden */
-/* } */
 
 .copy-btn {
   background-color: transparent;
-  color: #fff;
+  color: #0078d7;
   border: none;
   border-radius: 4px;
   padding: 6px;
-  margin-left: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .copy-btn:hover {
@@ -130,17 +125,36 @@ body {
   display: none;
 }
 
-/* Remove the slideDown animation for the results container */
-/* #command-result:not(.hidden) { */
-/*   animation: slideDown 0.3s ease-out; */
-/* } */
+#command-result.hidden {
+  animation: none;
+}
+
+#command-result:not(.hidden) {
+  display: block;
+  animation: slideDown 0.5s ease-out forwards;
+  overflow: visible;
+  transform-origin: top;
+}
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Removed slideDown keyframes */
+@keyframes slideDown {
+  from { 
+    opacity: 0; 
+    max-height: 0; 
+    transform: scaleY(0.8); 
+    margin-top: -10px;
+  }
+  to { 
+    opacity: 1; 
+    max-height: 1000px; 
+    transform: scaleY(1);
+    margin-top: 0;
+  }
+}
 
 @keyframes pulse {
   0% { opacity: 0.6; }

@@ -9,16 +9,24 @@ let tray;
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 600,
-    height: 100,
+    height: 80, // Smaller initial height
     frame: false,
     transparent: true,
     alwaysOnTop: true,
     show: false,
+    resizable: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
       contextIsolation: true
     }
+  });
+  
+  // Listen for content size changes and adjust window height
+  mainWindow.webContents.on('did-finish-load', () => {
+    mainWindow.webContents.on('did-resize', () => {
+      adjustWindowHeight();
+    });
   });
 
   mainWindow.loadFile('index.html');
@@ -31,6 +39,23 @@ function createWindow() {
   
   // Center window on screen
   positionWindowCenter();
+}
+
+// Adjust window height based on content
+function adjustWindowHeight() {
+  if (!mainWindow) return;
+  
+  mainWindow.webContents.executeJavaScript(`
+    document.body.offsetHeight
+  `).then(height => {
+    const [width] = mainWindow.getSize();
+    if (height > 0) {
+      // Add a small buffer to avoid scrollbars
+      mainWindow.setSize(width, height + 20);
+    }
+  }).catch(err => {
+    console.error('Error adjusting window size:', err);
+  });
 }
 
 // Position the window in the center of the screen
@@ -54,6 +79,8 @@ function toggleWindow() {
     mainWindow.hide();
   } else {
     console.log('..Showing window');
+    // Reset to initial small height when showing
+    mainWindow.setSize(600, 80);
     mainWindow.show();
     mainWindow.focus();
   }
@@ -127,9 +154,15 @@ ipcMain.handle('search-command', async (event, query) => {
   const { searchCommand } = require('./gemini');
   try {
     const result = await searchCommand(query);
+    
+    // Schedule a window resize after results are displayed
+    setTimeout(() => adjustWindowHeight(), 300);
+    
     return result;
   } catch (error) {
     console.error('Error searching command:', error);
+    // Also adjust height for error cases
+    setTimeout(() => adjustWindowHeight(), 300);
     return { error: 'Failed to fetch command. Please try again.' };
   }
 });

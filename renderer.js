@@ -11,12 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorText = document.getElementById('error-text');
   const copyCommandBtn = document.getElementById('copy-command');
   const copyExampleBtn = document.getElementById('copy-example');
-  const container = document.querySelector('.container'); // Get the main container
+  const container = document.querySelector('.container'); // Still useful for structure if needed later
 
   let dismissTimeout;
-  const MIN_HEIGHT = 60; // Corresponds to initial CSS height
-  const PADDING = 40; // Combined top/bottom padding from body CSS (20px + 20px)
-  
+
   // Listen for clear-contents event
   window.api.onClearContents(() => {
     clearContents();
@@ -49,11 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Search for a command using the API
   async function searchCommand(query) {
     // Reset state
-    // Reset state & shrink height before showing loading
-    clearContents(); // Clear previous results first
+    // Reset state & prepare for loading
+    clearContents(); // Clear previous results
     loading.classList.remove('hidden');
-    // Set height for loading state
-    setBodyHeight();
 
     try {
       const result = await window.api.searchCommand(query);
@@ -70,8 +66,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // Show results
       loading.classList.add('hidden');
       commandResult.classList.remove('hidden');
-      // Expand height for results
-      setBodyHeight();
+      
+      // Allow a moment for the animation to start, then trigger reflow
+      setTimeout(() => {
+        window.dispatchEvent(new Event('resize'));
+      }, 50);
+
 
       // Auto-dismiss after 15 seconds
       dismissTimeout = setTimeout(() => {
@@ -90,10 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
     commandResult.classList.add('hidden'); // Hide results if any
     errorText.textContent = message;
     errorText.classList.remove('hidden');
-    // Expand height for error message
-    setBodyHeight();
+
   }
-  
+
   // Show feedback when copying to clipboard
   function showCopiedFeedback(button) {
     button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
@@ -111,16 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
     commandText.textContent = '';
     exampleText.textContent = '';
     clearTimeout(dismissTimeout);
-    // Reset height to minimum when clearing
-    document.body.style.height = `${MIN_HEIGHT}px`;
   }
 
-  // Calculate and set the body height based on the container's scroll height
-  function setBodyHeight() {
-    // Need a slight delay to allow the DOM to update after class changes
-    requestAnimationFrame(() => {
-      const newHeight = Math.min(container.scrollHeight + PADDING, 300); // Use max-height from CSS
-      document.body.style.height = `${newHeight}px`;
-    });
-  }
+  // Removed setBodyHeight function as it's no longer needed
 });
