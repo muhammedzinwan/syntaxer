@@ -1,0 +1,126 @@
+document.addEventListener('DOMContentLoaded', () => {
+  // Focus the search input when the window is shown
+  setTimeout(() => {
+    document.getElementById('search-input').focus();
+  }, 100);
+  const searchInput = document.getElementById('search-input');
+  const commandResult = document.getElementById('command-result');
+  const commandText = document.getElementById('command-text');
+  const exampleText = document.getElementById('example-text');
+  const loading = document.getElementById('loading');
+  const errorText = document.getElementById('error-text');
+  const copyCommandBtn = document.getElementById('copy-command');
+  const copyExampleBtn = document.getElementById('copy-example');
+  const container = document.querySelector('.container'); // Get the main container
+
+  let dismissTimeout;
+  const MIN_HEIGHT = 60; // Corresponds to initial CSS height
+  const PADDING = 40; // Combined top/bottom padding from body CSS (20px + 20px)
+  
+  // Listen for clear-contents event
+  window.api.onClearContents(() => {
+    clearContents();
+  });
+  
+  // Search on enter key
+  searchInput.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      const query = searchInput.value.trim();
+      if (query) {
+        await searchCommand(query);
+      }
+    } else if (e.key === 'Escape') {
+      window.api.close();
+    }
+  });
+  
+  // Copy command to clipboard
+  copyCommandBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(commandText.textContent);
+    showCopiedFeedback(copyCommandBtn);
+  });
+  
+  // Copy example to clipboard
+  copyExampleBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(exampleText.textContent);
+    showCopiedFeedback(copyExampleBtn);
+  });
+  
+  // Search for a command using the API
+  async function searchCommand(query) {
+    // Reset state
+    // Reset state & shrink height before showing loading
+    clearContents(); // Clear previous results first
+    loading.classList.remove('hidden');
+    // Set height for loading state
+    setBodyHeight();
+
+    try {
+      const result = await window.api.searchCommand(query);
+      
+      if (result.error) {
+        showError(result.error);
+        return;
+      }
+      
+      // Update UI with results
+      commandText.textContent = result.command;
+      exampleText.textContent = result.example;
+      
+      // Show results
+      loading.classList.add('hidden');
+      commandResult.classList.remove('hidden');
+      // Expand height for results
+      setBodyHeight();
+
+      // Auto-dismiss after 15 seconds
+      dismissTimeout = setTimeout(() => {
+        window.api.close();
+      }, 15000);
+    } catch (error) {
+      showError('Failed to search. Please try again.');
+    }
+  }
+  
+  // Show error message
+  // Show error message
+  function showError(message) {
+    // Ensure loading is hidden and error is shown before calculating height
+    loading.classList.add('hidden');
+    commandResult.classList.add('hidden'); // Hide results if any
+    errorText.textContent = message;
+    errorText.classList.remove('hidden');
+    // Expand height for error message
+    setBodyHeight();
+  }
+  
+  // Show feedback when copying to clipboard
+  function showCopiedFeedback(button) {
+    button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+    setTimeout(() => {
+      button.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    }, 1500);
+  }
+  
+  // Clear all contents
+  function clearContents() {
+    searchInput.value = '';
+    commandResult.classList.add('hidden');
+    loading.classList.add('hidden');
+    errorText.classList.add('hidden');
+    commandText.textContent = '';
+    exampleText.textContent = '';
+    clearTimeout(dismissTimeout);
+    // Reset height to minimum when clearing
+    document.body.style.height = `${MIN_HEIGHT}px`;
+  }
+
+  // Calculate and set the body height based on the container's scroll height
+  function setBodyHeight() {
+    // Need a slight delay to allow the DOM to update after class changes
+    requestAnimationFrame(() => {
+      const newHeight = Math.min(container.scrollHeight + PADDING, 300); // Use max-height from CSS
+      document.body.style.height = `${newHeight}px`;
+    });
+  }
+});

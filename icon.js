@@ -1,0 +1,33 @@
+const fs = require('fs');
+
+// This is a base64 encoded simple icon (a blue square with 'S' in it)
+const iconBase64 = `
+iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAP8SURBVHhe7ZpNiBxVFIVPdf+ko2YxghLQkSiCiC4CgkRw
+oSgiLhIX7gQXIm5cuXQn7kVERAQXLkREEHEhiAgugqIoKhpRUaMmwSQ9Pd3V3VXd1e/7ql51T1XXr+mu
+mplzYLiPqq57b9W9r+53b3UbK8JKsL+//1kURZeCcGd9jxHj9hLH8V9UcbxRRDTAv6IoXigUCj/kFzqt
+6XRaX8t0Op29bDa7l8vlPsrn8x9yuJhKpXL1xYGBJACVuVwOT05OXuU4/tGRPx6PR6VS6XkKcVYJNzEo
+mJ+q1WqvU4gXKMTLCb6fSCxA0OPj45c5jlcQwXGSSCIb7XabNyPxQGGLRMfGjUaDjzO8XaQvDV95MXwl
+iQVAgFqtlhi2gLWdTocvs7wbQKd4c4BOcDpgfLVaRVGj0eBPhj8D6BSPDQo4D8Zio3XwFYnVADIAmwxA
+gJUxYHz7EIyhE3WM0wmOXfDLABTr9TqP0Xiev93QlXaOx3D84XNseIrEbgAZgE0GAOvQtMDQBfzZEWfp
+hOfUEHSGzrD5/y9ApVLhMY3nww3XACICDHccOlDDfGVkDJAB2GQApVKJxyg+iLiOQ+WjGPozRscAGYBN
+BlAsFnmO49PhJofSFxlpBOUUtJFylZG0CSIDsMkACAAOIg4bSBxcTyaRRn2lkbQJ8oWwwxeBRsBTdcAX
+wg5fBJrD3ioAX3H9OmDU4WklUgN8IeigNYAxw21AUDTBUWcBowxPK5EbwBfCDl8EGkE5Be0UtBsQ7gPI
+AMaLdAx4tFwuv9dut9/kMKHuIBgv0s5AP+zu7j7G9yCXaJPLZEFc39zcbHCYKLPZrL6WAIlXQXZub2/v
+vY2NjeeKxeLl0WjkLEX5QjgYDN6gU8+srq7+lE6nn6Vz50OhUI5fkdcXC4nXAbZ3dnbObm1tvcvh3xzO
+ByPU7/ffXl9ffyuTyWwh1b4u/SskAYLN+Xz+0vr6+nvVavXJKIrSKCVKu/mJNrgkAYLLwMcXFxcv0Gm+
+w3EcXUOXwD4j3KSEIcEHVQJdXjudzl7f2Nh4hYz/muPT9OB3jnMcL+LZ2dkDPufnf0IMvYdmsxnhezDe
+6/U+397e/pTDPM/OjAUwHoF2KcIjzWbzuampqVP0w3w+n7/BarIPFOJ5OvnS1tbWUxsbG+fICHZlXj6i
+I+yTLBVDPwb7/f4RamgWKX+KwpdJgOdoLDhLlz68vr7+WKlUukLTHuF5iUcpQJkajT4JkCMRvqUn/0qe
+4W0y6gC9T58lYlxqMsAm0UhA6R4gRJCdnR1shmrYwdVR7OZSqcSfW7ylGOsC6bQAW55h3GsKxrUxmr47
+2LHmCJtfHGdz5IuQJILLZVY69Xr9T/YZvwEx/gFwZIVRbXhkhQAAAABJRU5ErkJggg==
+`;
+
+// Remove any whitespace from the base64 string
+const cleanBase64 = iconBase64.replace(/\s/g, '');
+
+// Decode base64 and write to file
+const iconBuffer = Buffer.from(cleanBase64, 'base64');
+fs.writeFileSync('icon.png', iconBuffer);
+
+console.log('Icon created successfully!');
