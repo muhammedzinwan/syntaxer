@@ -9,7 +9,8 @@
 </p>
 
 <p align="center">
-  Developed by <b>Muhammed Zinwan</b> github.com/muhammedzinwan
+  Developed by <b>Muhammed Zinwan</b>
+  github.com/muhammedzinwan
 </p>
 
 ## About
