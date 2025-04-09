@@ -8,8 +8,8 @@ let tray;
 // Create the main application window
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 600,
-    height: 80, // Smaller initial height
+    width: 560,
+    height: 50, // Even smaller height to match the image
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -34,6 +34,7 @@ function createWindow() {
   
   // Hide window when it loses focus
   mainWindow.on('blur', () => {
+    mainWindow.webContents.send('clear-contents');
     mainWindow.hide();
   });
   
@@ -80,7 +81,7 @@ function toggleWindow() {
   } else {
     console.log('..Showing window');
     // Reset to initial small height when showing
-    mainWindow.setSize(600, 80);
+    mainWindow.setSize(560, 50);
     mainWindow.show();
     mainWindow.focus();
   }
@@ -125,6 +126,29 @@ app.whenReady().then(() => {
   console.log(' Syntaxer is now running');
   console.log('================================\n');
   
+  // Check for fonts directory and font files
+  const fs = require('fs');
+  const fontsDir = path.join(__dirname, 'fonts');
+  if (!fs.existsSync(fontsDir)) {
+    try {
+      fs.mkdirSync(fontsDir);
+      console.log('Created fonts directory. Please add JetBrains Mono font files.');
+    } catch (err) {
+      console.warn('Could not create fonts directory:', err);
+    }
+  } else {
+    // Check if font files exist
+    const requiredFonts = ['JetBrainsMono-Regular.ttf', 'JetBrainsMono-Bold.ttf'];
+    const missingFonts = requiredFonts.filter(font => !fs.existsSync(path.join(fontsDir, font)));
+    
+    if (missingFonts.length > 0) {
+      console.warn(`Missing font files: ${missingFonts.join(', ')}`);
+      console.warn('Application will use fallback fonts. See fonts/README.md for setup instructions.');
+    } else {
+      console.log('Font files found. Using JetBrains Mono.');
+    }
+  }
+  
   createWindow();
   setupTray();
   
@@ -151,7 +175,7 @@ app.on('activate', () => {
 
 // IPC handlers
 ipcMain.handle('search-command', async (event, query) => {
-  const { searchCommand } = require('./gemini');
+  const { searchCommand } = require('./llm');
   try {
     const result = await searchCommand(query);
     
@@ -168,5 +192,6 @@ ipcMain.handle('search-command', async (event, query) => {
 });
 
 ipcMain.on('close-app', () => {
+  mainWindow.webContents.send('clear-contents');
   mainWindow.hide();
 });

@@ -1,20 +1,21 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const groq = require('@groq/groq');
 require('dotenv').config();
 
-// Initialize the Gemini API with the API key from .env
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize the Groq client with the API key from .env
+const groqClient = new groq.GroqClient({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 /**
- * Search for a command using Gemini API
+ * Search for a command using Groq API
  * @param {string} query - Natural language query
  * @returns {Object} - Command and example
  */
 async function searchCommand(query) {
   try {
-    console.log('🔄 Using Gemini API as fallback for query:', query);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    console.log('\n🚀 Using Groq API for query:', query);
     
-    // Carefully crafted prompt to get exactly the format we need
+    // Define the prompt for Groq
     const promptTemplate = `
     I need the exact command syntax and one example for this query: "${query}"
     
@@ -27,8 +28,21 @@ async function searchCommand(query) {
     The response must be concise, technical, and focused on the exact command.
     `;
     
-    const result = await model.generateContent(promptTemplate);
-    const text = result.response.text();
+    // Make the API call
+    const chatCompletion = await groqClient.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: promptTemplate,
+        },
+      ],
+      model: 'llama3-8b-8192', // Using a fast model for quick responses
+      temperature: 0.2, // Lower temperature for more deterministic responses
+      max_tokens: 256, // Limit the response length
+    });
+    
+    // Get the response text
+    const text = chatCompletion.choices[0]?.message?.content.trim() || '';
     
     // Parse the response to extract command and example
     const lines = text.trim().split('\n');
@@ -51,15 +65,15 @@ async function searchCommand(query) {
       }
     }
     
-    console.log('📋 RESULT:');
+    console.log('📋 GROQ RESULT:');
     console.log('  Command: ' + command);
     console.log('  Example: ' + example);
     console.log('----------------------------------\n');
     
     return { command, example };
   } catch (error) {
-    console.error('Error with Gemini API:', error);
-    throw new Error('Failed to fetch command from Gemini API');
+    console.error('⚠️ Error with Groq API:', error);
+    throw new Error('Failed to fetch command from Groq API');
   }
 }
 

@@ -63,6 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
       commandText.textContent = result.command;
       exampleText.textContent = result.example;
       
+      // Show source of the result (Groq or Gemini) in console
+      if (result.source) {
+        console.log(`Result from: ${result.source}`);
+      }
+      
       // Show results
       loading.classList.add('hidden');
       commandResult.classList.remove('hidden');
