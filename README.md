@@ -10,8 +10,11 @@
 
 <p align="center">
   Developed by <b>Muhammed Zinwan</b>
-  github.com/muhammedzinwan
 </p>
+<p align="center">
+  <a href="https://github.com/muhammedzinwan">Github</a>
+</p>
+
 
 ## About
 
