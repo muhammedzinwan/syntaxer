@@ -76,6 +76,7 @@ No more context switching, no more digging through documentation - just the comm
 1. **Press `Alt+Space`** to summon the search bar from anywhere
 
 2. **Type your query** in natural language
+   - "How to Exit Vim"
    - "merge branches in git"
    - "list all docker containers"
    - "Python regex match pattern"

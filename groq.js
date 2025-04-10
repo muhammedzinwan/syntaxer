@@ -36,7 +36,7 @@ async function searchCommand(query) {
           content: promptTemplate,
         },
       ],
-      model: 'llama3-8b-8192', // Using a fast model for quick responses
+      model: 'deepseek-r1-distill-llama-70b', // Using a fast model for quick responses
       temperature: 0.2, // Lower temperature for more deterministic responses
       max_tokens: 256, // Limit the response length
     });
