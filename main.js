@@ -32,10 +32,24 @@ function createWindow() {
   mainWindow.loadFile('index.html');
   mainWindow.setVisibleOnAllWorkspaces(true);
   
-  // Hide window when it loses focus
+  // Give the user a chance to interact before hiding on blur
+  // This helps prevent the window from disappearing too quickly
+  let blurTimeout;
   mainWindow.on('blur', () => {
-    mainWindow.webContents.send('clear-contents');
-    mainWindow.hide();
+    // Only hide if the window has been out of focus for 2 seconds
+    // This prevents accidental hiding when clicking on UI elements
+    blurTimeout = setTimeout(() => {
+      mainWindow.webContents.send('clear-contents');
+      mainWindow.hide();
+    }, 2000);
+  });
+  
+  // Cancel the blur timeout if the window gets focus back
+  mainWindow.on('focus', () => {
+    if (blurTimeout) {
+      clearTimeout(blurTimeout);
+      blurTimeout = null;
+    }
   });
   
   // Center window on screen
@@ -47,12 +61,17 @@ function adjustWindowHeight() {
   if (!mainWindow) return;
   
   mainWindow.webContents.executeJavaScript(`
-    document.body.offsetHeight
+    // Get full content height including all wrapped text
+    document.body.scrollHeight
   `).then(height => {
     const [width] = mainWindow.getSize();
     if (height > 0) {
-      // Add a small buffer to avoid scrollbars
-      mainWindow.setSize(width, height + 20);
+      // Add a larger buffer to ensure all content is visible
+      // This is especially important for multiline content
+      mainWindow.setSize(width, height + 30);
+      
+      // Log height adjustment for debugging
+      console.log(`Adjusting window height to: ${height + 30}px`);
     }
   }).catch(err => {
     console.error('Error adjusting window size:', err);

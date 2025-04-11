@@ -1,4 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Track user activity to prevent auto-dismissing while user is active
+  let userActivityTimeout;
+  
+  function resetActivityTimer() {
+    // Clear any existing timeouts to prevent window from hiding
+    clearTimeout(userActivityTimeout);
+    clearTimeout(dismissTimeout);
+    
+    // Mark the user as active for the next 60 seconds
+    userActivityTimeout = setTimeout(() => {
+      // User has been inactive for 60 seconds, can consider auto-dismiss again
+      console.log('User inactive for 60 seconds');
+    }, 60000);
+  }
+  
+  // Reset the activity timer on any user interaction
+  document.addEventListener('mousemove', resetActivityTimer);
+  document.addEventListener('keydown', resetActivityTimer);
+  document.addEventListener('click', resetActivityTimer);
+  
   // Focus the search input when the window is shown
   setTimeout(() => {
     document.getElementById('search-input').focus();
@@ -78,10 +98,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }, 50);
 
 
-      // Auto-dismiss after 15 seconds
-      dismissTimeout = setTimeout(() => {
-        window.api.close();
-      }, 15000);
+      // Auto-dismiss disabled
+      // Keeping the window visible until user interaction
+      clearTimeout(dismissTimeout);
+      dismissTimeout = null;
     } catch (error) {
       showError('Failed to search. Please try again.');
     }
@@ -115,6 +135,10 @@ document.addEventListener('DOMContentLoaded', () => {
     commandText.textContent = '';
     exampleText.textContent = '';
     clearTimeout(dismissTimeout);
+    dismissTimeout = null;
+    
+    // Also reset activity timer when contents are cleared
+    resetActivityTimer();
   }
 
   // Removed setBodyHeight function as it's no longer needed

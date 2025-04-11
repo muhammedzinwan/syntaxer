@@ -63,6 +63,10 @@ body {
   display: flex;
   align-items: center;
   margin-bottom: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgba(31, 31, 31, 0.95);
 }
 
 /* Add space between search input and results */
@@ -98,7 +102,7 @@ body {
 
 .result-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start; /* Changed from center to flex-start for better alignment with multiline content */
   margin-top: 10px;
   background-color: rgba(55, 55, 55, 0.6);
   padding: 10px;
@@ -106,6 +110,7 @@ body {
   animation: fadeIn 0.3s ease;
   position: relative;
   border: none;
+  min-height: 30px; /* Minimum height to ensure copy button has space */
 }
 
 .result-label {
@@ -113,15 +118,17 @@ body {
   width: 80px;
   color: #f0f0f0;
   margin-right: 10px;
+  padding-top: 2px; /* Align with the first line of potentially multiline text */
 }
 
 .result-text {
   flex: 1;
   font-family: 'JetBrains Mono', 'SF Mono', Menlo, Monaco, 'Courier New', monospace;
-  white-space: nowrap;
+  white-space: pre-wrap; /* Changed from nowrap to pre-wrap to allow text wrapping */
   padding: 2px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: break-word; /* Ensures long words break if needed */
+  word-break: break-word; /* Alternative approach for better browser compatibility */
+  padding-right: 40px; /* Add space for the copy button */
   font-size: 14px;
 }
 
@@ -138,17 +145,17 @@ body {
   transition: all 0.2s;
   position: absolute;
   right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 10px; /* Fixed position at the top instead of 50% */
+  transform: none; /* Remove the transform since we're using fixed positioning */
 }
 
 .copy-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
-  transform: translateY(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 
 .copy-btn:active {
-  transform: translateY(-50%) scale(0.95);
+  transform: scale(0.95);
 }
 
 #loading {
@@ -211,6 +218,10 @@ body {
   body {
     background-color: rgba(240, 240, 240, 0.95);
     color: #333;
+  }
+  
+  .search-container {
+    background-color: rgba(240, 240, 240, 0.95);
   }
   
   #search-input {
