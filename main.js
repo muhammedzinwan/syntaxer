@@ -145,8 +145,25 @@ app.whenReady().then(() => {
   console.log(' Syntaxer is now running');
   console.log('================================\n');
   
-  // Check for fonts directory and font files
+  // Check for .env file and create if not exists
   const fs = require('fs');
+  const envFile = path.join(__dirname, '.env');
+  if (!fs.existsSync(envFile)) {
+    console.log('Creating .env file with API key placeholders...');
+    const envContent = 
+      '# API Keys for LLM Services\n' +
+      'GROQ_API_KEY=your_groq_api_key_here\n' +
+      'GEMINI_API_KEY=your_gemini_api_key_here\n';
+    
+    try {
+      fs.writeFileSync(envFile, envContent);
+      console.log('Created .env file. Please update with your actual API keys.');
+    } catch (err) {
+      console.warn('Could not create .env file:', err);
+    }
+  }
+  
+  // Check for fonts directory and font files
   const fontsDir = path.join(__dirname, 'fonts');
   if (!fs.existsSync(fontsDir)) {
     try {

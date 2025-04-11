@@ -11,6 +11,21 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
  * @returns {Object} - Command and example
  */
 async function searchCommand(query) {
+  // Check if any API keys are configured
+  if (!process.env.GROQ_API_KEY && !process.env.GEMINI_API_KEY) {
+    return {
+      error: 'No API keys configured. Please add your GROQ_API_KEY or GEMINI_API_KEY to the .env file.'
+    };
+  }
+  
+  // Check if the keys are still the placeholders
+  if (process.env.GROQ_API_KEY === 'your_groq_api_key_here' && 
+      process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    return {
+      error: 'API keys not set. Please update the .env file with your actual API keys.'
+    };
+  }
+  
   // Try with Groq first, fall back to Gemini if it fails
   try {
     return await searchWithGroq(query);
@@ -29,6 +44,11 @@ async function searchWithGroq(query) {
   // Check if Groq API key is set
   if (!process.env.GROQ_API_KEY) {
     throw new Error('GROQ_API_KEY not found in environment variables');
+  }
+  
+  // Check if using placeholder key
+  if (process.env.GROQ_API_KEY === 'your_groq_api_key_here') {
+    throw new Error('Please replace the placeholder GROQ_API_KEY in .env with your actual key');
   }
 
   console.log('\\n🔍 QUERY (Groq): "' + query + '"');
@@ -80,6 +100,16 @@ async function searchWithGroq(query) {
  * @returns {Object} - Command and example
  */
 async function searchWithGemini(query) {
+  // Check if Gemini API key is valid
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error('GEMINI_API_KEY not found in environment variables');
+  }
+  
+  // Check if using placeholder key
+  if (process.env.GEMINI_API_KEY === 'your_gemini_api_key_here') {
+    throw new Error('Please replace the placeholder GEMINI_API_KEY in .env with your actual key');
+  }
+  
   console.log('\\n🔍 QUERY (Gemini): "' + query + '"');
   console.log('----------------------------------');
   

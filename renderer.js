@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearTimeout(dismissTimeout);
       dismissTimeout = null;
     } catch (error) {
-      showError('Failed to search. Please try again.');
+      showError('Failed to search. Please check the console for details.');
     }
   }
   
