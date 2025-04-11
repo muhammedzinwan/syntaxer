@@ -114,7 +114,7 @@ async function searchWithGemini(query) {
   console.log('----------------------------------');
   
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
     // Same prompt template for consistency
     const promptTemplate = `
